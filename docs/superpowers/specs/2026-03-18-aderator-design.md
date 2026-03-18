@@ -259,7 +259,13 @@ Checks run in three layers, short-circuiting if disabled:
 - Reads all `storage/manifests/*.json` on page load (server component)
 - Polls `GET /api/pipeline/manifests` every 2s while a pipeline is active; new artifacts are appended to the grid as their manifests appear. Polling stops when the `/run` page emits a `type:complete` SSE event (communicated to `/review` via a shared `sessionStorage` flag set by the trigger page).
 - Filter state lives in URL query params (`?product=…&market=…&ratio=…&state=…`) for shareability
-- Clicking "approve" or "flag" calls `PATCH /api/review/{artifactId}` and updates manifest JSON in-place
+- Clicking "approve" or "flag" calls `PATCH /api/review/{artifactId}` and updates manifest JSON in-place. Request body is a discriminated union:
+  ```ts
+  | { action: 'heart' }
+  | { action: 'approve', approvedBy: string }
+  | { action: 'flag', reason: string }
+  | { action: 'comment', author: string, text: string }
+  ```
 - Hearting toggles `review.hearts` count; comments append to `review.comments`. The comment author is a free-text field in the UI (defaulting to `"Anonymous"`); no authentication is required.
 - A copyable review URL is shown at the bottom
 
