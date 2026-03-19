@@ -1,4 +1,4 @@
-# Aderator
+# Social Aderator
 
 Local-first creative production pipeline and stakeholder review workspace for localized social ad campaigns.
 
