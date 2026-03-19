@@ -9,7 +9,7 @@
     "lint": "eslint",
     "test": "vitest run",
     "test:watch": "vitest",
-    "seed": "node --import tsx/esm scripts/seed.ts"
+    "seed": "tsx scripts/seed.ts"
   },
   "dependencies": {
     "@google/genai": "^1.46.0",
