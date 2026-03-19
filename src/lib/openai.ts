@@ -16,7 +16,7 @@ function makeClient(): OpenAI {
  */
 export async function generateHeroImage(
   productName: string,
-  tagline: string,
+  _tagline: string, // not used in this version but could be added to the prompt for richer images
   brand: string
 ): Promise<Buffer> {
   if (isMockMode()) {
@@ -24,7 +24,7 @@ export async function generateHeroImage(
   }
 
   const ai = makeClient()
-  const prompt = `Product hero image for ${brand}. Product: ${productName}. Tagline: ${tagline}. Clean studio photography, white or gradient background, professional advertising style.`
+  const prompt = `Advertising hero image for ${brand}. Product: ${productName}. Clean studio photography, white or gradient background, professional advertising style.`
 
   const response = await ai.images.generate({
     model: 'gpt-image-1.5',
