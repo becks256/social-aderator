@@ -18,7 +18,11 @@ export async function GET(
   // outputPath stored in manifest is relative to storageRoot (e.g. "outputs/campaignId/...")
   // so we join directly — NOT path.join(storageRoot(), 'outputs', ...segments)
   // which would produce a double "outputs" segment
-  const filePath = path.join(storageRoot(), ...segments)
+  const root = path.resolve(storageRoot())
+  const filePath = path.resolve(path.join(root, ...segments))
+  if (!filePath.startsWith(root + path.sep) && filePath !== root) {
+    return new Response('Not found', { status: 404 })
+  }
 
   try {
     const buffer = await fs.readFile(filePath)

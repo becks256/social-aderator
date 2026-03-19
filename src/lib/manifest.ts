@@ -41,7 +41,7 @@ export function applyReviewAction(
 
   switch (action.action) {
     case 'heart':
-      m.review.hearts += 1
+      m.review.hearts = m.review.hearts > 0 ? m.review.hearts - 1 : 1
       break
     case 'approve':
       m.state = 'approved'
