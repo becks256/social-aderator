@@ -1,5 +1,5 @@
 export type AspectRatio = '1:1' | '9:16' | '16:9'
-export type Provenance = 'brief' | 'gemini' | 'mock'
+export type Provenance = 'brief' | 'openai' | 'mock'
 export type WorkflowState = 'generated' | 'in_review' | 'approved' | 'flagged'
 
 export interface MarketCopy {
@@ -26,7 +26,7 @@ export interface CampaignBrief {
     markets: string[]
   }
   products: Product[]
-  copy: Record<string, MarketCopy | null>  // null = localize via Gemini
+  copy: Record<string, MarketCopy | null>  // null = localize via OpenAI
   constraints: {
     maxHeadlineChars: number
     requireDisclaimer: boolean

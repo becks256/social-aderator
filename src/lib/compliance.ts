@@ -50,15 +50,15 @@ export function runBriefChecks(
 export function aggregateChecks(
   structural: ComplianceCheck[],
   brief: ComplianceCheck[],
-  gemini?: { passed: boolean; issues: string[] }
+  aiReview?: { passed: boolean; issues: string[] }
 ): { passed: boolean; checks: ComplianceCheck[] } {
   const all: ComplianceCheck[] = [...structural, ...brief]
 
-  if (gemini) {
+  if (aiReview) {
     all.push({
-      rule: 'gemini-brand-review',
-      passed: gemini.passed,
-      detail: gemini.issues.join('; ') || undefined,
+      rule: 'ai-brand-review',
+      passed: aiReview.passed,
+      detail: aiReview.issues.join('; ') || undefined,
     })
   }
 

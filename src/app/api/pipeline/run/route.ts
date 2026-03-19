@@ -2,7 +2,7 @@
 import { NextRequest } from 'next/server'
 import { parseBrief, validateBrief } from '@/lib/brief'
 import { resolveAssets } from '@/lib/assets'
-import { generateHeroImage, reviewCompliance as geminiReviewCompliance, generatePlaceholderImage } from '@/lib/gemini'
+import { generateHeroImage, reviewCompliance, generatePlaceholderImage } from '@/lib/openai'
 import { localizeMarketCopy } from '@/lib/localize'
 import { renderCreative } from '@/lib/render'
 import { TEMPLATES } from '@/lib/templates'
@@ -10,7 +10,7 @@ import { detectOverflow } from '@/lib/render'
 import { runStructuralChecks, runBriefChecks, aggregateChecks } from '@/lib/compliance'
 import { createManifest } from '@/lib/manifest'
 import { writeOutput, writeManifest, writeAsset, readAsset } from '@/lib/storage'
-import { isMockMode } from '@/lib/gemini'
+import { isMockMode } from '@/lib/openai'
 import type { AspectRatio, MarketCopy, Provenance } from '@/lib/types'
 
 export const dynamic = 'force-dynamic'
@@ -91,7 +91,7 @@ export async function POST(request: NextRequest) {
             const sourceMarket = Object.keys(brief.copy).find(m => brief.copy[m] !== null)
             const source = sourceMarket ? brief.copy[sourceMarket]! : { headline: brief.campaign.name, body: brief.products[0]?.tagline ?? '', cta: 'Learn More' }
             allCopy[market] = await localizeMarketCopy(source, market, brief.campaign.brand, brief.products[0]?.name ?? '')
-            copyProvenance[market] = isMockMode() ? 'mock' : 'gemini'
+            copyProvenance[market] = isMockMode() ? 'mock' : 'openai'
           }
         }
         emit(controller, { type: 'step', step: 'localize', status: 'done' })
@@ -128,13 +128,13 @@ export async function POST(request: NextRequest) {
                 const overflows = detectOverflow(copy.headline, template.text.width, template.text.fontSize)
                 const structural = runStructuralChecks(assets.heroFound, assets.logoFound, assets.packshotFound)
                 const briefChecks = runBriefChecks(copy, brief.constraints, overflows)
-                let geminiResult: { passed: boolean; issues: string[] } | undefined
+                let aiResult: { passed: boolean; issues: string[] } | undefined
                 if (!isMockMode()) {
-                  geminiResult = await geminiReviewCompliance(
+                  aiResult = await reviewCompliance(
                     imageBuffer.toString('base64'), product.name, brief.campaign.brand, copy.headline
                   )
                 }
-                const complianceResult = aggregateChecks(structural, briefChecks, geminiResult)
+                const complianceResult = aggregateChecks(structural, briefChecks, aiResult)
 
                 // Save output
                 const outputPath = await writeOutput(brief.campaign.id, product.id, market, RATIO_FILENAME[ratio], imageBuffer)
@@ -149,7 +149,7 @@ export async function POST(request: NextRequest) {
                   localizedCopy: copy,
                   copyProvenance: copyProvenance[market],
                   assetProvenance: {
-                    hero: assets.heroFound ? (product.hero ? 'brief' : (isMockMode() ? 'mock' : 'gemini')) : 'mock',
+                    hero: assets.heroFound ? (product.hero ? 'brief' : (isMockMode() ? 'mock' : 'openai')) : 'mock',
                     packshot: 'brief',
                     logo: 'brief',
                   },

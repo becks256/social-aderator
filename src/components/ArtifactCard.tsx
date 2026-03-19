@@ -48,7 +48,7 @@ export function ArtifactCard({ manifest: initial }: Props) {
           <Tag label={manifest.aspectRatio} variant="ratio" />
           <Tag label={manifest.market} variant="market" />
           <Tag label={manifest.compliance.passed ? '✓ compliant' : '✗ non-compliant'} variant={manifest.compliance.passed ? 'ok' : 'fail'} />
-          <Tag label={`hero: ${manifest.assetProvenance.hero}`} variant={manifest.assetProvenance.hero === 'brief' ? 'brief' : 'gemini'} />
+          <Tag label={`hero: ${manifest.assetProvenance.hero}`} variant={manifest.assetProvenance.hero === 'brief' ? 'brief' : 'openai'} />
         </div>
 
         {/* Status */}

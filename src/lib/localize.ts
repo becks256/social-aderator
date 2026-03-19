@@ -1,4 +1,5 @@
-import { isMockMode } from './gemini'
+import { isMockMode } from './openai'
+import OpenAI from 'openai'
 import type { MarketCopy } from './types'
 
 const MOCK_TRANSLATIONS: Record<string, Partial<MarketCopy>> = {
@@ -23,7 +24,7 @@ const MOCK_TRANSLATIONS: Record<string, Partial<MarketCopy>> = {
 /**
  * Localize copy for a market.
  * Mock mode: returns hardcoded translations or prefixed source copy.
- * Live mode: calls Gemini to translate.
+ * Live mode: calls gpt-5.4-nano via tool call to translate.
  */
 export async function localizeMarketCopy(
   source: MarketCopy,
@@ -41,37 +42,43 @@ export async function localizeMarketCopy(
     }
   }
 
-  const { GoogleGenAI } = await import('@google/genai')
-  const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! })
+  const ai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY! })
 
   const prompt = `Translate the following advertising copy for ${brand}'s product "${productName}" into the ${market} locale. Preserve tone, energy, and brand voice.
 
 Source copy:
 ${JSON.stringify(source, null, 2)}`
 
-  const response = await ai.models.generateContent({
-    model: 'gemini-2.5-flash',
-    contents: prompt,
-    config: {
-      responseMimeType: 'application/json',
-      responseSchema: {
-        type: 'object',
-        properties: {
-          headline:   { type: 'string' },
-          body:       { type: 'string' },
-          cta:        { type: 'string' },
-          disclaimer: { type: 'string' },
+  const response = await ai.chat.completions.create({
+    model: 'gpt-5.4-nano',
+    messages: [{ role: 'user', content: prompt }],
+    tools: [
+      {
+        type: 'function',
+        function: {
+          name: 'submit_translation',
+          description: 'Submit the translated advertising copy',
+          parameters: {
+            type: 'object',
+            properties: {
+              headline:   { type: 'string', description: 'Translated headline' },
+              body:       { type: 'string', description: 'Translated body copy' },
+              cta:        { type: 'string', description: 'Translated call-to-action' },
+              disclaimer: { type: 'string', description: 'Translated disclaimer (if present)' },
+            },
+            required: ['headline', 'body', 'cta'],
+          },
         },
-        required: ['headline', 'body', 'cta'],
       },
-    },
+    ],
+    tool_choice: { type: 'function', function: { name: 'submit_translation' } },
   })
 
   try {
-    const text = response.candidates?.[0]?.content?.parts?.[0]?.text ?? ''
-    return JSON.parse(text) as MarketCopy
+    const toolCall = response.choices[0]?.message.tool_calls?.[0]
+    const args = toolCall && 'function' in toolCall ? toolCall.function.arguments : ''
+    return JSON.parse(args) as MarketCopy
   } catch {
-    // Fallback: return source copy if response is unparseable
     return source
   }
 }

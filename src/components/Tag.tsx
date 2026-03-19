@@ -1,5 +1,5 @@
 // src/components/Tag.tsx
-type TagVariant = 'ratio' | 'market' | 'product' | 'ok' | 'fail' | 'gemini' | 'brief'
+type TagVariant = 'ratio' | 'market' | 'product' | 'ok' | 'fail' | 'openai' | 'brief'
 
 const VARIANT_CLASSES: Record<TagVariant, string> = {
   ratio:   'bg-gray-100 text-gray-600',
@@ -7,7 +7,7 @@ const VARIANT_CLASSES: Record<TagVariant, string> = {
   product: 'bg-violet-50 text-violet-600',
   ok:      'bg-green-50 text-green-700',
   fail:    'bg-red-50 text-red-600',
-  gemini:  'bg-yellow-50 text-yellow-700',
+  openai:  'bg-yellow-50 text-yellow-700',
   brief:   'bg-gray-100 text-gray-500',
 }
 

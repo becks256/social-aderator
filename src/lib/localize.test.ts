@@ -11,22 +11,22 @@ const source: MarketCopy = {
 
 describe('localizeMarketCopy (mock mode)', () => {
   it('returns mock copy when no API key', async () => {
-    const orig = process.env.GEMINI_API_KEY
-    delete process.env.GEMINI_API_KEY
+    const orig = process.env.OPENAI_API_KEY
+    delete process.env.OPENAI_API_KEY
     const result = await localizeMarketCopy(source, 'fr-FR', 'Acme', 'Product')
     expect(result.headline).toBeDefined()
     expect(result.cta).toBeDefined()
-    process.env.GEMINI_API_KEY = orig
+    process.env.OPENAI_API_KEY = orig
   })
 
   it('mock copy preserves structure', async () => {
-    const orig = process.env.GEMINI_API_KEY
-    delete process.env.GEMINI_API_KEY
+    const orig = process.env.OPENAI_API_KEY
+    delete process.env.OPENAI_API_KEY
     const result = await localizeMarketCopy(source, 'fr-FR', 'Acme', 'Product')
     expect(typeof result.headline).toBe('string')
     expect(typeof result.body).toBe('string')
     expect(typeof result.cta).toBe('string')
     expect(typeof result.disclaimer).toBe('string')
-    process.env.GEMINI_API_KEY = orig
+    process.env.OPENAI_API_KEY = orig
   })
 })
