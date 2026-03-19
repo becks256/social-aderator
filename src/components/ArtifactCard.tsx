@@ -1,7 +1,7 @@
 // src/components/ArtifactCard.tsx
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { Tag } from './Tag'
 import { StatusBadge } from './StatusBadge'
 import type { ArtifactManifest, ReviewAction } from '@/lib/types'
@@ -21,6 +21,7 @@ export function ArtifactCard({ manifest: initial }: Props) {
   const [commenting, setCommenting] = useState(false)
   const [commentText, setCommentText] = useState('')
   const [commentAuthor, setCommentAuthor] = useState('Anonymous')
+  const dialogRef = useRef<HTMLDialogElement>(null)
 
   async function dispatch(action: ReviewAction) {
     const res = await fetch(`/api/review/${manifest.id}`, {
@@ -38,9 +39,25 @@ export function ArtifactCard({ manifest: initial }: Props) {
   return (
     <div className={`bg-white rounded-xl border overflow-hidden ${borderColor}`}>
       {/* Thumbnail */}
-      <div className={`w-full ${RATIO_CLASS[manifest.aspectRatio]} bg-gray-50 overflow-hidden`}>
+      <div
+        className={`w-full ${RATIO_CLASS[manifest.aspectRatio]} bg-gray-50 overflow-hidden cursor-zoom-in`}
+        onClick={() => dialogRef.current?.showModal()}
+      >
         <img src={imgSrc} alt={`${manifest.productId} ${manifest.market} ${manifest.aspectRatio}`} className="w-full h-full object-cover" />
       </div>
+
+      {/* Preview modal */}
+      <dialog
+        ref={dialogRef}
+        className="backdrop:bg-black/70 bg-transparent p-0 max-w-[90vw] max-h-[90vh] rounded-xl overflow-hidden outline-none"
+        onClick={e => { if (e.target === dialogRef.current) dialogRef.current.close() }}
+      >
+        <img
+          src={imgSrc}
+          alt={`${manifest.productId} ${manifest.market} ${manifest.aspectRatio}`}
+          className="block max-w-[90vw] max-h-[90vh] object-contain"
+        />
+      </dialog>
 
       <div className="p-3">
         {/* Tags */}
