@@ -49,13 +49,13 @@ export function ArtifactCard({ manifest: initial }: Props) {
       {/* Preview modal */}
       <dialog
         ref={dialogRef}
-        className="backdrop:bg-black/70 bg-transparent p-0 max-w-[90vw] max-h-[90vh] rounded-xl overflow-hidden outline-none"
+        className="m-auto backdrop:bg-black/70 bg-transparent p-0 max-w-[90vw] max-h-[90vh] rounded-xl overflow-hidden outline-none"
         onClick={e => { if (e.target === dialogRef.current) dialogRef.current.close() }}
       >
         <img
           src={imgSrc}
           alt={`${manifest.productId} ${manifest.market} ${manifest.aspectRatio}`}
-          className="block max-w-[90vw] max-h-[90vh] object-contain"
+          className="block max-w-[90vw] max-h-[90vh] object-contain mx-auto"
         />
       </dialog>
 
