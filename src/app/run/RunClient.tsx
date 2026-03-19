@@ -21,6 +21,7 @@ function Spinner() {
 
 export default function RunClient() {
   const [briefText, setBriefText] = useState('')
+  const [aiCompliance, setAiCompliance] = useState(true)
   const [parsed, setParsed] = useState<CampaignBrief | null>(null)
   const [parseError, setParseError] = useState<string | null>(null)
   const [uploadStatus, setUploadStatus] = useState<Record<string, 'idle' | 'uploading' | 'done'>>({})
@@ -66,7 +67,8 @@ export default function RunClient() {
     setRunning(true)
     sessionStorage.setItem('pipelineRunning', 'true')
 
-    const response = await fetch('/api/pipeline/run', {
+    const url = aiCompliance ? '/api/pipeline/run' : '/api/pipeline/run?compliance=0'
+    const response = await fetch(url, {
       method: 'POST',
       body: briefText,
       headers: { 'Content-Type': 'text/plain' },
@@ -256,6 +258,19 @@ export default function RunClient() {
         </section>
       )}
 
+      {/* Options */}
+      <div className="flex items-center justify-between mb-4">
+        <label className="flex items-center gap-2.5 cursor-pointer select-none">
+          <div
+            onClick={() => setAiCompliance(v => !v)}
+            className={`relative w-8 h-4.5 rounded-full transition-colors ${aiCompliance ? 'bg-gray-900' : 'bg-gray-200'}`}
+          >
+            <span className={`absolute top-0.5 w-3.5 h-3.5 bg-white rounded-full shadow transition-transform ${aiCompliance ? 'translate-x-4' : 'translate-x-0.5'}`} />
+          </div>
+          <span className="text-xs text-gray-600">AI compliance review</span>
+        </label>
+      </div>
+
       {/* Run button */}
       <button
         onClick={runPipeline}
@@ -312,7 +327,7 @@ export default function RunClient() {
               )
             })}
           </div>
-          {(artifactCount > 0 || done) && (
+          {done && (
             <div className="px-4 pb-4">
               <a
                 href="/review"

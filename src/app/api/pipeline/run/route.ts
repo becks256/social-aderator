@@ -46,6 +46,7 @@ function emit(controller: ReadableStreamDefaultController, data: object) {
 
 export async function POST(request: NextRequest) {
   const body = await request.text()
+  const runAiCompliance = new URL(request.url).searchParams.get('compliance') !== '0'
 
   const stream = new ReadableStream({
     async start(controller) {
@@ -239,7 +240,7 @@ export async function POST(request: NextRequest) {
                   overflows,
                 )
                 let aiResult: { passed: boolean; issues: string[] } | undefined
-                if (!isMockMode()) {
+                if (runAiCompliance && !isMockMode()) {
                   aiResult = await reviewCompliance(
                     imageBuffer.toString("base64"),
                     product.name,
