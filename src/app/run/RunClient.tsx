@@ -90,7 +90,12 @@ export default function RunClient() {
           const event = JSON.parse(dataLine.slice(6))
           if (event.type === 'step') {
             setLog(l => {
-              const idx = l.findIndex(e => e.step === event.step)
+              // Errors always append so they stay visible even as the step continues.
+              // Running/done replace the most recent running entry for that step.
+              if (event.status === 'error') {
+                return [...l, event]
+              }
+              const idx = l.findIndex(e => e.step === event.step && e.status === 'running')
               if (idx !== -1) {
                 const next = [...l]
                 next[idx] = event
@@ -281,24 +286,31 @@ export default function RunClient() {
             )}
           </div>
           <div className="px-4 py-3 space-y-1.5">
-            {log.map((line, i) => (
-              <div key={i} className="flex items-center gap-2.5 text-xs">
-                <span className="font-mono text-gray-400 w-24 flex-shrink-0">{line.step}</span>
-                {line.status === 'running' ? (
-                  <Spinner />
-                ) : (
-                  <span className={line.status === 'done' ? 'text-green-600' : 'text-red-500'}>
-                    {line.status === 'done' ? '✓' : '✗'}
+            {log.map((line, i) => {
+              const isSubError = line.status === 'error' && log.slice(0, i).some(e => e.step === line.step)
+              return (
+                <div key={i} className={`flex items-center gap-2.5 text-xs ${isSubError ? 'pl-6' : ''}`}>
+                  {isSubError ? (
+                    <span className="text-gray-300 flex-shrink-0">↳</span>
+                  ) : (
+                    <span className="font-mono text-gray-400 w-24 flex-shrink-0">{line.step}</span>
+                  )}
+                  {line.status === 'running' ? (
+                    <Spinner />
+                  ) : (
+                    <span className={line.status === 'done' ? 'text-green-600' : 'text-red-500'}>
+                      {line.status === 'done' ? '✓' : '✗'}
+                    </span>
+                  )}
+                  <span className={
+                    line.status === 'done' ? 'text-gray-600' :
+                    line.status === 'error' ? 'text-red-500' : 'text-blue-500'
+                  }>
+                    {line.detail ?? line.status}
                   </span>
-                )}
-                <span className={
-                  line.status === 'done' ? 'text-gray-600' :
-                  line.status === 'error' ? 'text-red-500' : 'text-blue-500'
-                }>
-                  {line.detail ?? line.status}
-                </span>
-              </div>
-            ))}
+                </div>
+              )
+            })}
           </div>
           {(artifactCount > 0 || done) && (
             <div className="px-4 pb-4">
