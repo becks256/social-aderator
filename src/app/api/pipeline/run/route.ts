@@ -37,6 +37,7 @@ export async function POST(request: NextRequest) {
     async start(controller) {
       let totalArtifacts = 0
       let errorCount = 0
+      let renderErrorCount = 0
 
       try {
         // Step 1: Parse brief
@@ -112,6 +113,7 @@ export async function POST(request: NextRequest) {
           if (!packshotBuffer || !logoBuffer) {
             emit(controller, { type: 'step', step: 'render', status: 'error', detail: `${product.id}: missing packshot or logo` })
             errorCount++
+            renderErrorCount++
             continue
           }
 
@@ -168,11 +170,20 @@ export async function POST(request: NextRequest) {
               } catch (e) {
                 emit(controller, { type: 'step', step: 'render', status: 'error', detail: `${product.id}/${market}/${ratio}: ${(e as Error).message}` })
                 errorCount++
+                renderErrorCount++
               }
             }
           }
         }
 
+        emit(controller, {
+          type: 'step',
+          step: 'render',
+          status: renderErrorCount > 0 ? 'error' : 'done',
+          detail: renderErrorCount > 0
+            ? `${totalArtifacts} done, ${renderErrorCount} failed`
+            : `${totalArtifacts} done`,
+        })
         emit(controller, { type: 'complete', total: totalArtifacts, errors: errorCount })
       } catch (e) {
         emit(controller, { type: 'step', step: 'pipeline', status: 'error', detail: (e as Error).message })

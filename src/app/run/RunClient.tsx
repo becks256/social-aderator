@@ -89,7 +89,15 @@ export default function RunClient() {
         try {
           const event = JSON.parse(dataLine.slice(6))
           if (event.type === 'step') {
-            setLog(l => [...l, event])
+            setLog(l => {
+              const idx = l.findIndex(e => e.step === event.step)
+              if (idx !== -1) {
+                const next = [...l]
+                next[idx] = event
+                return next
+              }
+              return [...l, event]
+            })
           } else if (event.type === 'artifact') {
             setArtifactCount(n => n + 1)
           } else if (event.type === 'complete') {
