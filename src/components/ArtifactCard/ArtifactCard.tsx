@@ -1,72 +1,72 @@
 // src/components/ArtifactCard.tsx
-"use client";
+"use client"
 
-import { useState, useRef } from "react";
-import { Tag } from "../Tag";
-import { StatusBadge } from "../StatusBadge";
-import type { ArtifactManifest, ReviewAction } from "@/lib/types";
-import { Thumbnail } from "./components/Thumbnail/Thumbnail";
-import { PreviewModal } from "./components/PreviewModal/PreviewModal";
-import { HeartButton } from "./components/HeartButton/HeartButton";
-import { CommentButton } from "./components/CommentButton/CommentButton";
-import { ApproveButton } from "./components/ApproveButton/ApproveButton";
-import { FlagButton } from "./components/FlagButton/FlagButton";
-import { CommentForm } from "./components/CommentForm/CommentForm";
-import { CommentList } from "./components/CommentList/CommentList";
+import { useState, useRef } from "react"
+import { Tag } from "../Tag"
+import { StatusBadge } from "../StatusBadge"
+import type { ArtifactManifest, ReviewAction } from "@/lib/types"
+import { Thumbnail } from "./components/Thumbnail/Thumbnail"
+import { PreviewModal } from "./components/PreviewModal/PreviewModal"
+import { HeartButton } from "./components/HeartButton/HeartButton"
+import { CommentButton } from "./components/CommentButton/CommentButton"
+import { ApproveButton } from "./components/ApproveButton/ApproveButton"
+import { FlagButton } from "./components/FlagButton/FlagButton"
+import { CommentForm } from "./components/CommentForm/CommentForm"
+import { CommentList } from "./components/CommentList/CommentList"
 
 interface Props {
-  manifest: ArtifactManifest;
+  manifest: ArtifactManifest
 }
 
-const IMG_ROOT = "/api/outputs";
+const IMG_ROOT = "/api/outputs"
 
 export const ArtifactCard = ({ manifest: initial }: Props) => {
-  const [manifest, setManifest] = useState(initial);
-  const [commenting, setCommenting] = useState(false);
-  const dialogRef = useRef<HTMLDialogElement | null>(null);
+  const [manifest, setManifest] = useState(initial)
+  const [commenting, setCommenting] = useState(false)
+  const dialogRef = useRef<HTMLDialogElement | null>(null)
 
   async function dispatch(action: ReviewAction) {
     const res = await fetch(`/api/review/${manifest.id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(action),
-    });
-    if (res.ok) setManifest(await res.json());
+    })
+    if (res.ok) setManifest(await res.json())
   }
 
-  const handleHeartClick = () => dispatch({ action: "heart" });
+  const handleHeartClick = () => dispatch({ action: "heart" })
 
-  const handleCommentClick = () => setCommenting((c) => !c);
+  const handleCommentClick = () => setCommenting((c) => !c)
 
   const handleApproveClick = () =>
-    dispatch({ action: "approve", approvedBy: "Reviewer" });
+    dispatch({ action: "approve", approvedBy: "Reviewer" })
 
   const handleCommentSubmit = ({
     commentAuthor,
     commentText,
   }: {
-    commentAuthor: string;
-    commentText: string;
+    commentAuthor: string
+    commentText: string
   }) => {
     dispatch({
       action: "comment",
       author: commentAuthor || "Anonymous",
       text: commentText,
-    });
-    setCommenting(false);
-  };
+    })
+    setCommenting(false)
+  }
 
-  const imgSrc = `${IMG_ROOT}/${manifest.outputPath}`;
+  const imgSrc = `${IMG_ROOT}/${manifest.outputPath}`
   const borderColor =
     manifest.state === "approved"
       ? "border-green-200"
       : manifest.state === "flagged"
         ? "border-red-200"
-        : "border-gray-100";
+        : "border-gray-100"
 
   return (
     <div
-      className={`bg-white rounded-xl border overflow-hidden ${borderColor}`}
+      className={`ui-ArtifactCard flex flex-col justify-between bg-white rounded-xl border overflow-hidden ${borderColor}`}
     >
       <Thumbnail
         src={imgSrc}
@@ -126,8 +126,8 @@ export const ArtifactCard = ({ manifest: initial }: Props) => {
           {manifest.state !== "flagged" && (
             <FlagButton
               onClick={() => {
-                const reason = window.prompt("Flag reason?");
-                if (reason) dispatch({ action: "flag", reason });
+                const reason = window.prompt("Flag reason?")
+                if (reason) dispatch({ action: "flag", reason })
               }}
             />
           )}
@@ -137,5 +137,5 @@ export const ArtifactCard = ({ manifest: initial }: Props) => {
         <CommentList comments={manifest.review.comments} />
       </div>
     </div>
-  );
-};
+  )
+}
