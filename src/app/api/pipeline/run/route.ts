@@ -92,34 +92,54 @@ export async function POST(request: NextRequest) {
           detail: `${missingHeroes.length} missing heroes`,
         })
 
-        // Step 3: Generate missing heroes
+        // Step 3: Generate heroes per product×market for products missing a brief hero
+        // generatedHeroes[productId][market] = image Buffer
+        const generatedHeroes: Record<string, Record<string, Buffer>> = {}
         if (missingHeroes.length > 0) {
+          const total = missingHeroes.length * brief.campaign.markets.length
           emit(controller, {
             type: "step",
             step: "image-gen",
             status: "running",
+            detail: `0 / ${total}`,
           })
+          let done = 0
           for (const product of missingHeroes) {
-            try {
-              const buf = await generateHeroImage(
-                product.name,
-                product.tagline,
-                brief.campaign.brand,
-              )
-              const filename = `${product.id}-hero-generated.png`
-              await writeAsset(brief.campaign.id, filename, buf)
-              resolved[product.id].heroFound = true
-              resolved[product.id].heroPath = filename
-            } catch (e) {
+            generatedHeroes[product.id] = {}
+            for (const market of brief.campaign.markets) {
+              try {
+                generatedHeroes[product.id][market] = await generateHeroImage(
+                  product.name,
+                  product.tagline,
+                  brief.campaign.brand,
+                  market,
+                )
+              } catch (e) {
+                emit(controller, {
+                  type: "step",
+                  step: "image-gen",
+                  status: "error",
+                  detail: `${product.id}/${market}: ${(e as Error).message}`,
+                })
+                generatedHeroes[product.id][market] = await generatePlaceholderImage(
+                  product.name, "#4a90d9", 1080, 1080,
+                )
+              }
+              done++
               emit(controller, {
                 type: "step",
                 step: "image-gen",
-                status: "error",
-                detail: `${product.id}: ${(e as Error).message}`,
+                status: "running",
+                detail: `${done} / ${total}`,
               })
             }
           }
-          emit(controller, { type: "step", step: "image-gen", status: "done" })
+          emit(controller, {
+            type: "step",
+            step: "image-gen",
+            status: "done",
+            detail: `${total} generated`,
+          })
         }
 
         // Step 4: Localize copy
@@ -159,27 +179,6 @@ export async function POST(request: NextRequest) {
         for (const product of brief.products) {
           const assets = resolved[product.id]
 
-          // Load asset buffers
-          const heroBuffer = assets.heroPath
-            ? ((await readAsset(
-                brief.campaign.id,
-                assets.heroPath.includes("/")
-                  ? assets.heroPath.split("/").pop()!
-                  : assets.heroPath,
-              )) ??
-              (await generatePlaceholderImage(
-                product.name,
-                "#4a90d9",
-                1080,
-                1080,
-              )))
-            : await generatePlaceholderImage(
-                product.name,
-                "#4a90d9",
-                1080,
-                1080,
-              )
-
           const packshotBuffer = (await readAsset(
             brief.campaign.id,
             product.packshot ?? effectiveFilename(product.id, "packshot"),
@@ -205,6 +204,17 @@ export async function POST(request: NextRequest) {
 
           for (const market of brief.campaign.markets) {
             const copy = allCopy[market]
+
+            // Hero is market-specific: use brief asset if present, else use generated
+            const heroBuffer = assets.heroPath
+              ? ((await readAsset(
+                  brief.campaign.id,
+                  assets.heroPath.includes("/")
+                    ? assets.heroPath.split("/").pop()!
+                    : assets.heroPath,
+                )) ?? await generatePlaceholderImage(product.name, "#4a90d9", 1080, 1080))
+              : (generatedHeroes[product.id]?.[market]
+                  ?? await generatePlaceholderImage(product.name, "#4a90d9", 1080, 1080))
 
             for (const ratio of ASPECT_RATIOS) {
               emit(controller, {

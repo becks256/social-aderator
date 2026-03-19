@@ -40,12 +40,12 @@ Open http://localhost:3000 — you'll be redirected to `/run`.
 5. Watch the SSE log — artifacts appear in real time
 6. Click **View in Review Workspace →** when done
 
-## With Gemini
+## With OpenAI
 
-Set `GEMINI_API_KEY` in `.env.local` to enable:
-- Real hero image generation for Hydra Boost Serum
+Set `OPENAI_API_KEY` in `.env.local` to enable:
+- Real hero image generation for Hydra Boost Serum and Radiance SPF 50
 - Real French copy localization
-- Gemini brand compliance review
+- OpenAI brand compliance review
 
 Without the key, the pipeline uses placeholder images and mock translations.
 

@@ -9,22 +9,49 @@ function makeClient(): OpenAI {
   return new OpenAI({ apiKey: process.env.OPENAI_API_KEY! })
 }
 
+// Locale-specific visual cues injected into the image generation prompt
+const LOCALE_HINTS: Record<string, string> = {
+  'en-US': 'American lifestyle, diverse and energetic cast, bright natural light, optimistic mood',
+  'en-GB': 'British lifestyle, understated elegance, soft overcast light, refined aesthetic',
+  'fr-FR': 'Parisian chic, effortless elegance, warm golden-hour light, sophisticated mood',
+  'de-DE': 'Clean modernist aesthetic, precise and minimal, cool neutral tones, understated luxury',
+  'es-ES': 'Warm Mediterranean sunlight, vibrant and passionate, outdoor or coastal setting',
+  'it-IT': 'Italian lifestyle, artisanal craft, warm terracotta tones, la dolce vita atmosphere',
+  'pt-BR': 'Brazilian warmth, diverse and joyful, rich tropical colours, dynamic urban energy',
+  'ja-JP': 'Japanese minimalist aesthetic, soft diffused light, serene and precise, pastel palette',
+  'ko-KR': 'K-beauty aesthetic, porcelain-smooth focus, pastel tones, modern Seoul backdrop',
+  'zh-CN': 'Contemporary urban China, aspirational and modern, clean lines, bright city light',
+  'ar-SA': 'Gulf luxury aesthetic, warm golden tones, opulent yet restrained, desert-inspired palette',
+  'in-IN': 'Vibrant Indian palette, rich jewel tones, joyful and expressive, festive warmth',
+}
+
+function localeHint(market: string): string {
+  return LOCALE_HINTS[market] ?? `${market} cultural aesthetic, locally resonant setting and mood`
+}
+
 /**
- * Generate a hero image for a product.
+ * Generate a hero image for a product, localised for the given market.
  * In mock mode: returns a Sharp-drawn placeholder PNG.
  * With API key: calls gpt-image-1.5 image generation.
  */
 export async function generateHeroImage(
   productName: string,
-  _tagline: string, // not used in this version but could be added to the prompt for richer images
-  brand: string
+  tagline: string,
+  brand: string,
+  market: string,
 ): Promise<Buffer> {
   if (isMockMode()) {
-    return generatePlaceholderImage(productName, '#4a90d9', 1080, 1080)
+    return generatePlaceholderImage(`${productName} (${market})`, '#4a90d9', 1080, 1080)
   }
 
   const ai = makeClient()
-  const prompt = `Advertising hero image for ${brand}. Product: ${productName}. Clean studio photography, white or gradient background, professional advertising style.`
+  const prompt = [
+    `Product hero image for ${brand}'s "${productName}".`,
+    `Tagline: "${tagline}".`,
+    `Visual style: ${localeHint(market)}.`,
+    'Clean studio or lifestyle photography, professional advertising quality.',
+    'No text or logos in the image.',
+  ].join(' ')
 
   const response = await ai.images.generate({
     model: 'gpt-image-1.5',

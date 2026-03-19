@@ -12,7 +12,7 @@ describe('openai (mock mode)', () => {
   it('generateHeroImage returns a Buffer in mock mode', async () => {
     const orig = process.env.OPENAI_API_KEY
     delete process.env.OPENAI_API_KEY
-    const buf = await generateHeroImage('Product A', 'Great product', 'Acme')
+    const buf = await generateHeroImage('Product A', 'Great product', 'Acme', 'en-US')
     expect(buf).toBeInstanceOf(Buffer)
     expect(buf.length).toBeGreaterThan(0)
     process.env.OPENAI_API_KEY = orig
