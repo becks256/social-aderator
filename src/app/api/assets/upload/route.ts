@@ -16,8 +16,11 @@ export async function POST(request: NextRequest) {
     return Response.json({ error: 'file is required' }, { status: 400 })
   }
 
-  const buffer = Buffer.from(await file.arrayBuffer())
-  await writeAsset(campaignId, file.name, buffer)
+  const filename = formData.get('filename')
+  const targetName = typeof filename === 'string' && filename.trim() ? filename.trim() : file.name
 
-  return Response.json({ ok: true, filename: file.name })
+  const buffer = Buffer.from(await file.arrayBuffer())
+  await writeAsset(campaignId, targetName, buffer)
+
+  return Response.json({ ok: true, filename: targetName })
 }
