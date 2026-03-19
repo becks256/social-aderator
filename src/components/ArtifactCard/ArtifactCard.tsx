@@ -12,6 +12,7 @@ import { CommentButton } from "./components/CommentButton/CommentButton";
 import { ApproveButton } from "./components/ApproveButton/ApproveButton";
 import { FlagButton } from "./components/FlagButton/FlagButton";
 import { CommentForm } from "./components/CommentForm/CommentForm";
+import { CommentList } from "./components/CommentList/CommentList";
 
 interface Props {
   manifest: ArtifactManifest;
@@ -133,18 +134,7 @@ export const ArtifactCard = ({ manifest: initial }: Props) => {
         </div>
         {commenting && <CommentForm onClick={handleCommentSubmit} />}
 
-        {/* Comment list */}
-        {manifest.review.comments.length > 0 && (
-          <div className="mt-2 space-y-1.5">
-            {manifest.review.comments.map((c, i) => (
-              <div key={i} className="text-[10px] bg-gray-50 rounded px-2 py-1.5">
-                <span className="font-medium text-gray-600">{c.author}</span>
-                <span className="text-gray-400 mx-1">·</span>
-                <span className="text-gray-500">{c.text}</span>
-              </div>
-            ))}
-          </div>
-        )}
+        <CommentList comments={manifest.review.comments} />
       </div>
     </div>
   );
