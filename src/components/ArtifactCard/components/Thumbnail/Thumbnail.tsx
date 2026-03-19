@@ -16,7 +16,7 @@ export const Thumbnail = ({
   onClick: React.MouseEventHandler<HTMLDivElement>;
 }) => (
   <div
-    className={`w-full ${RATIO_CLASS[ratio]} bg-gray-50 overflow-hidden cursor-zoom-in`}
+    className={`w-full ${RATIO_CLASS[ratio]} bg-gray-50 overflow-hidden cursor-zoom-in border-b border-gray-300`}
     onClick={onClick}
   >
     <img src={src} alt={alt} className="w-full h-full object-cover" />
