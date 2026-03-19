@@ -3,14 +3,14 @@ import { buildSvgText, detectOverflow, wrapText } from './render'
 
 describe('buildSvgText', () => {
   it('returns an SVG string containing the text', () => {
-    const svg = buildSvgText('Hello world', { x: 10, y: 20, width: 400, height: 60, fontSize: 32, lineHeight: 40, color: '#000' })
+    const svg = buildSvgText('Hello world', { x: 10, y: 20, width: 400, height: 60, fontSize: 32, lineHeight: 40, color: '#000' }, { width: 1080, height: 1080 })
     expect(svg).toContain('Hello world')
     expect(svg).toContain('<svg')
     expect(svg).toContain('</svg>')
   })
 
   it('escapes HTML entities in text', () => {
-    const svg = buildSvgText('A & B < C', { x: 0, y: 0, width: 400, height: 60, fontSize: 32, lineHeight: 40, color: '#000' })
+    const svg = buildSvgText('A & B < C', { x: 0, y: 0, width: 400, height: 60, fontSize: 32, lineHeight: 40, color: '#000' }, { width: 1080, height: 1080 })
     expect(svg).toContain('&amp;')
     expect(svg).toContain('&lt;')
   })

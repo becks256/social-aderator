@@ -38,7 +38,7 @@ function escapeXml(str: string): string {
     .replace(/'/g, '&apos;')
 }
 
-export function buildSvgText(text: string, zone: TextZone): string {
+export function buildSvgText(text: string, zone: TextZone, canvas: { width: number; height: number }): string {
   const lines = wrapText(text, zone.width, zone.fontSize)
   const tspans = lines
     .map((line, i) => {
@@ -47,15 +47,15 @@ export function buildSvgText(text: string, zone: TextZone): string {
     })
     .join('\n')
 
-  return `<svg width="${zone.x + zone.width}" height="${zone.y + zone.height + lines.length * zone.lineHeight}" xmlns="http://www.w3.org/2000/svg">
+  return `<svg width="${canvas.width}" height="${canvas.height}" xmlns="http://www.w3.org/2000/svg">
   <text font-family="Arial, Helvetica, sans-serif" font-size="${zone.fontSize}" fill="${zone.color}" x="${zone.x}" y="${zone.y}">
     ${tspans}
   </text>
 </svg>`
 }
 
-function buildCtaSvg(text: string, zone: { x: number; y: number; width: number; height: number; fontSize: number; color: string; bg: string; radius: number }): string {
-  return `<svg width="${zone.x + zone.width}" height="${zone.y + zone.height}" xmlns="http://www.w3.org/2000/svg">
+function buildCtaSvg(text: string, zone: { x: number; y: number; width: number; height: number; fontSize: number; color: string; bg: string; radius: number }, canvas: { width: number; height: number }): string {
+  return `<svg width="${canvas.width}" height="${canvas.height}" xmlns="http://www.w3.org/2000/svg">
   <rect x="${zone.x}" y="${zone.y}" width="${zone.width}" height="${zone.height}" rx="${zone.radius}" fill="${zone.bg}"/>
   <text x="${zone.x + zone.width / 2}" y="${zone.y + zone.height / 2 + zone.fontSize * 0.35}"
     font-family="Arial, Helvetica, sans-serif" font-size="${zone.fontSize}"
@@ -108,10 +108,10 @@ export async function renderCreative(input: RenderInput): Promise<Buffer> {
     .png()
     .toBuffer()
 
-  // SVG text buffers
-  const headlineSvg = Buffer.from(buildSvgText(input.copy.headline, t.text))
-  const bodySvg = Buffer.from(buildSvgText(input.copy.body, t.bodyText))
-  const ctaSvg = Buffer.from(buildCtaSvg(input.copy.cta, t.cta))
+  // SVG text buffers — all sized to the full canvas so Sharp never rejects the composite
+  const headlineSvg = Buffer.from(buildSvgText(input.copy.headline, t.text, canvas))
+  const bodySvg = Buffer.from(buildSvgText(input.copy.body, t.bodyText, canvas))
+  const ctaSvg = Buffer.from(buildCtaSvg(input.copy.cta, t.cta, canvas))
 
   const layers: sharp.OverlayOptions[] = [
     { input: hero, left: t.hero.x, top: t.hero.y },
@@ -123,7 +123,7 @@ export async function renderCreative(input: RenderInput): Promise<Buffer> {
   ]
 
   if (input.copy.disclaimer) {
-    const disclaimerSvg = Buffer.from(buildSvgText(input.copy.disclaimer, t.disclaimer))
+    const disclaimerSvg = Buffer.from(buildSvgText(input.copy.disclaimer, t.disclaimer, canvas))
     layers.push({ input: disclaimerSvg, left: 0, top: 0 })
   }
 
