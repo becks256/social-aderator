@@ -6,7 +6,7 @@ type TagVariant =
   | "ok"
   | "fail"
   | "openai"
-  | "brief"
+  | "brief";
 
 const VARIANT_CLASSES: Record<TagVariant, string> = {
   ratio: "bg-gray-100 text-gray-600",
@@ -16,14 +16,14 @@ const VARIANT_CLASSES: Record<TagVariant, string> = {
   fail: "bg-red-50 text-red-600",
   openai: "bg-yellow-50 text-yellow-700",
   brief: "bg-gray-100 text-gray-500",
-}
+};
 
 export const Tag = ({
   label,
   variant,
 }: {
-  label: string
-  variant: TagVariant
+  label: string;
+  variant: TagVariant;
 }) => {
   return (
     <span
@@ -31,5 +31,5 @@ export const Tag = ({
     >
       {label}
     </span>
-  )
-}
+  );
+};

@@ -1,7 +1,7 @@
 export const FlagButton = ({
   onClick,
 }: {
-  onClick: React.MouseEventHandler<HTMLButtonElement>
+  onClick: React.MouseEventHandler<HTMLButtonElement>;
 }) => (
   <button
     onClick={onClick}
@@ -9,4 +9,4 @@ export const FlagButton = ({
   >
     Flag
   </button>
-)
+);

@@ -3,9 +3,9 @@ export const Pill = ({
   active,
   onClick,
 }: {
-  label: string
-  active: boolean
-  onClick: () => void
+  label: string;
+  active: boolean;
+  onClick: () => void;
 }) => {
   return (
     <button
@@ -18,5 +18,5 @@ export const Pill = ({
     >
       {label}
     </button>
-  )
-}
+  );
+};

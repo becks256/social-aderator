@@ -2,8 +2,8 @@ export const CommentButton = ({
   comments,
   onClick,
 }: {
-  comments: { author: string; text: string }[]
-  onClick: React.MouseEventHandler<HTMLButtonElement>
+  comments: { author: string; text: string }[];
+  onClick: React.MouseEventHandler<HTMLButtonElement>;
 }) => (
   <button
     onClick={onClick} //}
@@ -11,4 +11,4 @@ export const CommentButton = ({
   >
     💬 {comments.length}
   </button>
-)
+);

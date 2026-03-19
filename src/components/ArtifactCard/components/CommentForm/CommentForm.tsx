@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState } from "react";
 
 export const CommentForm = ({
   onClick,
@@ -7,19 +7,19 @@ export const CommentForm = ({
     commentAuthor,
     commentText,
   }: {
-    commentAuthor: string
-    commentText: string
-  }) => void
+    commentAuthor: string;
+    commentText: string;
+  }) => void;
 }) => {
-  const [commentText, setCommentText] = useState("")
-  const [commentAuthor, setCommentAuthor] = useState("Anonymous")
+  const [commentText, setCommentText] = useState("");
+  const [commentAuthor, setCommentAuthor] = useState("Anonymous");
 
   const handleSubmit = () => {
     if (commentText.trim()) {
-      onClick?.({ commentAuthor, commentText })
-      setCommentText("")
+      onClick?.({ commentAuthor, commentText });
+      setCommentText("");
     }
-  }
+  };
   return (
     <div className="mt-2 flex flex-col gap-1.5">
       <input
@@ -43,5 +43,5 @@ export const CommentForm = ({
         </button>
       </div>
     </div>
-  )
-}
+  );
+};

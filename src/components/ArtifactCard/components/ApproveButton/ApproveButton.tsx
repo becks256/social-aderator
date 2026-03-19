@@ -1,7 +1,7 @@
 export const ApproveButton = ({
   onClick,
 }: {
-  onClick: React.MouseEventHandler<HTMLButtonElement>
+  onClick: React.MouseEventHandler<HTMLButtonElement>;
 }) => {
   return (
     <button
@@ -10,5 +10,5 @@ export const ApproveButton = ({
     >
       Approve
     </button>
-  )
-}
+  );
+};

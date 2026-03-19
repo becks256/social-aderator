@@ -2,10 +2,10 @@ export const HeartButton = ({
   hearts,
   onClick,
 }: {
-  hearts: number
-  onClick: React.MouseEventHandler<HTMLButtonElement>
+  hearts: number;
+  onClick: React.MouseEventHandler<HTMLButtonElement>;
 }) => {
-  const hasHearts = hearts > 0
+  const hasHearts = hearts > 0;
   return (
     <button
       onClick={onClick}
@@ -13,5 +13,5 @@ export const HeartButton = ({
     >
       {hasHearts ? "♥" : "♡"} {hearts}
     </button>
-  )
-}
+  );
+};
