@@ -181,7 +181,24 @@ export default function RunClient() {
           <label className="block text-xs font-semibold uppercase tracking-widest text-gray-400 mb-3">
             Assets
           </label>
-          <div className="space-y-3">
+          <div className="space-y-4">
+            {/* Campaign-level logo (shared across all products) */}
+            <div>
+              <div className="text-xs text-gray-500 font-medium mb-1.5">
+                {parsed.campaign.name} — Brand Logo
+              </div>
+              <div className="grid grid-cols-3 gap-2">
+                {assetTile(
+                  'Logo',
+                  parsed.campaign.logo,
+                  `Will be saved as ${parsed.campaign.id}-logo.png`,
+                  'campaign-logo',
+                  f => handleUpload(parsed.campaign.id, 'campaign-logo', parsed.campaign.logo ?? `${parsed.campaign.id}-logo.png`, f)
+                )}
+              </div>
+            </div>
+
+            {/* Per-product: hero + packshot (+ logo override if explicitly set in brief) */}
             {parsed.products.map(product => (
               <div key={product.id}>
                 <div className="text-xs text-gray-500 font-medium mb-1.5">{product.name}</div>
@@ -200,12 +217,12 @@ export default function RunClient() {
                     `${product.id}-packshot`,
                     f => handleUpload(parsed.campaign.id, `${product.id}-packshot`, product.packshot ?? `${product.id}-packshot.png`, f)
                   )}
-                  {assetTile(
-                    'Logo',
+                  {product.logo && assetTile(
+                    'Logo (override)',
                     product.logo,
-                    `Will be saved as ${product.id}-logo.png`,
+                    '',
                     `${product.id}-logo`,
-                    f => handleUpload(parsed.campaign.id, `${product.id}-logo`, product.logo ?? `${product.id}-logo.png`, f)
+                    f => handleUpload(parsed.campaign.id, `${product.id}-logo`, product.logo!, f)
                   )}
                 </div>
               </div>

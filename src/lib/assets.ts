@@ -26,7 +26,7 @@ export async function resolveAssets(
     const heroPath = product.hero ? path.join(dir, product.hero) : null
     const heroFound = heroPath ? await fileExists(heroPath) : false
     const packshotName = product.packshot ?? effectiveFilename(product.id, 'packshot')
-    const logoName = product.logo ?? effectiveFilename(product.id, 'logo')
+    const logoName = product.logo ?? brief.campaign.logo ?? effectiveFilename(brief.campaign.id, 'logo')
     const packshotPath = path.join(dir, packshotName)
     const logoPath = path.join(dir, logoName)
 

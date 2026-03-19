@@ -24,6 +24,7 @@ export interface CampaignBrief {
     name: string
     brand: string
     markets: string[]
+    logo?: string    // shared brand logo; products may override with their own logo field
   }
   products: Product[]
   copy: Record<string, MarketCopy | null>  // null = localize via OpenAI
