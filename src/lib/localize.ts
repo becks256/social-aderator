@@ -44,7 +44,7 @@ export async function localizeMarketCopy(
   const { GoogleGenAI } = await import('@google/genai')
   const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! })
 
-  const prompt = `Translate the following advertising copy for ${brand}'s product "${productName}" into ${market} locale. Preserve tone, energy, and brand voice. Reply ONLY with valid JSON matching this shape: { "headline": string, "body": string, "cta": string, "disclaimer": string | undefined }
+  const prompt = `Translate the following advertising copy for ${brand}'s product "${productName}" into the ${market} locale. Preserve tone, energy, and brand voice.
 
 Source copy:
 ${JSON.stringify(source, null, 2)}`
@@ -52,18 +52,26 @@ ${JSON.stringify(source, null, 2)}`
   const response = await ai.models.generateContent({
     model: 'gemini-2.5-flash',
     contents: prompt,
+    config: {
+      responseMimeType: 'application/json',
+      responseSchema: {
+        type: 'object',
+        properties: {
+          headline:   { type: 'string' },
+          body:       { type: 'string' },
+          cta:        { type: 'string' },
+          disclaimer: { type: 'string' },
+        },
+        required: ['headline', 'body', 'cta'],
+      },
+    },
   })
 
-  const text = response.candidates?.[0]?.content?.parts?.[0]?.text ?? ''
-  const json = text.match(/\{[\s\S]*\}/)?.[0]
-  if (json) {
-    try {
-      return JSON.parse(json) as MarketCopy
-    } catch {
-      // fall through to source
-    }
+  try {
+    const text = response.candidates?.[0]?.content?.parts?.[0]?.text ?? ''
+    return JSON.parse(text) as MarketCopy
+  } catch {
+    // Fallback: return source copy if response is unparseable
+    return source
   }
-
-  // Fallback: return source copy if Gemini response is unparseable
-  return source
 }

@@ -59,7 +59,7 @@ export async function reviewCompliance(
   const { GoogleGenAI } = await import('@google/genai')
   const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! })
 
-  const prompt = `You are a brand compliance reviewer. Review this ad creative for brand ${brand}, product ${productName}, headline "${headline}". Check: 1) Is the copy appropriate and on-brand? 2) Is there any potentially offensive content? Reply with JSON: { "passed": boolean, "issues": string[] }`
+  const prompt = `You are a brand compliance reviewer. Review this ad creative for brand ${brand}, product ${productName}, headline "${headline}". Check: 1) Is the copy appropriate and on-brand? 2) Is there any potentially offensive content?`
 
   const response = await ai.models.generateContent({
     model: 'gemini-2.5-flash',
@@ -67,16 +67,25 @@ export async function reviewCompliance(
       { inlineData: { mimeType: 'image/png', data: imageBase64 } },
       { text: prompt },
     ],
+    config: {
+      responseMimeType: 'application/json',
+      responseSchema: {
+        type: 'object',
+        properties: {
+          passed: { type: 'boolean' },
+          issues: { type: 'array', items: { type: 'string' } },
+        },
+        required: ['passed', 'issues'],
+      },
+    },
   })
 
   try {
     const text = response.candidates?.[0]?.content?.parts?.[0]?.text ?? ''
-    const json = text.match(/\{[\s\S]*\}/)?.[0]
-    if (json) return JSON.parse(json)
+    return JSON.parse(text)
   } catch {
-    // ignore parse errors
+    return { passed: true, issues: [] }
   }
-  return { passed: true, issues: [] }
 }
 
 export async function generatePlaceholderImage(
