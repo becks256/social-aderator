@@ -21,8 +21,6 @@ export function validateBrief(brief: CampaignBrief): void {
   if (!brief.products?.length) throw new Error('brief: at least one item in products is required')
   for (const p of brief.products) {
     if (!p.id) throw new Error('brief: product.id is required')
-    if (!p.packshot) throw new Error(`brief: product ${p.id} missing packshot`)
-    if (!p.logo) throw new Error(`brief: product ${p.id} missing logo`)
   }
   if (!brief.constraints) throw new Error('brief: constraints block is required')
 }

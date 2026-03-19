@@ -14,8 +14,8 @@ export interface Product {
   name: string
   tagline: string
   hero?: string      // filename in storage/assets/{campaignId}/; absent = generate
-  packshot: string
-  logo: string
+  packshot?: string
+  logo?: string
 }
 
 export interface CampaignBrief {

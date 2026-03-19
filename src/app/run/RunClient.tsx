@@ -196,16 +196,16 @@ export default function RunClient() {
                   {assetTile(
                     'Packshot',
                     product.packshot,
-                    'Required — upload a file',
+                    `Will be saved as ${product.id}-packshot.png`,
                     `${product.id}-packshot`,
-                    f => handleUpload(parsed.campaign.id, `${product.id}-packshot`, product.packshot, f)
+                    f => handleUpload(parsed.campaign.id, `${product.id}-packshot`, product.packshot ?? `${product.id}-packshot.png`, f)
                   )}
                   {assetTile(
                     'Logo',
                     product.logo,
-                    'Required — upload a file',
+                    `Will be saved as ${product.id}-logo.png`,
                     `${product.id}-logo`,
-                    f => handleUpload(parsed.campaign.id, `${product.id}-logo`, product.logo, f)
+                    f => handleUpload(parsed.campaign.id, `${product.id}-logo`, product.logo ?? `${product.id}-logo.png`, f)
                   )}
                 </div>
               </div>

@@ -12,6 +12,10 @@ export interface ResolvedAssets {
   logoFound: boolean
 }
 
+export function effectiveFilename(productId: string, type: 'packshot' | 'logo'): string {
+  return `${productId}-${type}.png`
+}
+
 export async function resolveAssets(
   brief: CampaignBrief
 ): Promise<Record<string, ResolvedAssets>> {
@@ -21,8 +25,10 @@ export async function resolveAssets(
   for (const product of brief.products) {
     const heroPath = product.hero ? path.join(dir, product.hero) : null
     const heroFound = heroPath ? await fileExists(heroPath) : false
-    const packshotPath = path.join(dir, product.packshot)
-    const logoPath = path.join(dir, product.logo)
+    const packshotName = product.packshot ?? effectiveFilename(product.id, 'packshot')
+    const logoName = product.logo ?? effectiveFilename(product.id, 'logo')
+    const packshotPath = path.join(dir, packshotName)
+    const logoPath = path.join(dir, logoName)
 
     result[product.id] = {
       heroFound,

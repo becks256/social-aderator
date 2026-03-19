@@ -8,6 +8,7 @@ import { renderCreative } from '@/lib/render'
 import { TEMPLATES } from '@/lib/templates'
 import { detectOverflow } from '@/lib/render'
 import { runStructuralChecks, runBriefChecks, aggregateChecks } from '@/lib/compliance'
+import { effectiveFilename } from '@/lib/assets'
 import { createManifest } from '@/lib/manifest'
 import { writeOutput, writeManifest, writeAsset, readAsset } from '@/lib/storage'
 import { isMockMode } from '@/lib/openai'
@@ -107,8 +108,8 @@ export async function POST(request: NextRequest) {
               ?? await generatePlaceholderImage(product.name, '#4a90d9', 1080, 1080)
             : await generatePlaceholderImage(product.name, '#4a90d9', 1080, 1080)
 
-          const packshotBuffer = (await readAsset(brief.campaign.id, product.packshot))!
-          const logoBuffer = (await readAsset(brief.campaign.id, product.logo))!
+          const packshotBuffer = (await readAsset(brief.campaign.id, product.packshot ?? effectiveFilename(product.id, 'packshot')))!
+          const logoBuffer = (await readAsset(brief.campaign.id, product.logo ?? effectiveFilename(product.id, 'logo')))!
 
           if (!packshotBuffer || !logoBuffer) {
             emit(controller, { type: 'step', step: 'render', status: 'error', detail: `${product.id}: missing packshot or logo` })
