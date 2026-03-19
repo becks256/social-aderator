@@ -6,10 +6,10 @@ Local-first creative production pipeline and stakeholder review workspace for lo
 
 1. **Ingest** a campaign brief (YAML or JSON) with multiple products and markets
 2. **Resolve** brand assets from local storage; upload via the UI
-3. **Generate** missing hero images with Gemini 2.5 Flash (placeholder PNG if no API key)
-4. **Localize** copy per market with Gemini (mock translations if no API key)
+3. **Generate** missing hero images with GPT Image 1.5 (placeholder PNG if no API key)
+4. **Localize** copy per market with OpenAI (mock translations if no API key)
 5. **Render** 1:1, 9:16, and 16:9 creatives using deterministic Sharp templates
-6. **Check** compliance: structural + brief constraints + optional Gemini brand review
+6. **Check** compliance: optional OpenAI structural + brief constraints + brand review
 7. **Save** PNG outputs and JSON manifests to organized local directories
 8. **Review** artifacts at `/review` — heart, comment, approve, or flag
 
