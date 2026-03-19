@@ -1,36 +1,73 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Aderator
 
-## Getting Started
+Local-first creative production pipeline and stakeholder review workspace for localized social ad campaigns.
 
-First, run the development server:
+## What it does
+
+1. **Ingest** a campaign brief (YAML or JSON) with multiple products and markets
+2. **Resolve** brand assets from local storage; upload via the UI
+3. **Generate** missing hero images with Gemini 2.5 Flash (placeholder PNG if no API key)
+4. **Localize** copy per market with Gemini (mock translations if no API key)
+5. **Render** 1:1, 9:16, and 16:9 creatives using deterministic Sharp templates
+6. **Check** compliance: structural + brief constraints + optional Gemini brand review
+7. **Save** PNG outputs and JSON manifests to organized local directories
+8. **Review** artifacts at `/review` — heart, comment, approve, or flag
+
+## Quick start
 
 ```bash
+# 1. Install dependencies
+npm install
+
+# 2. Copy and fill environment (optional — works without a key)
+cp .env.example .env.local
+
+# 3. Seed demo assets
+npm run seed
+
+# 4. Start dev server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000 — you'll be redirected to `/run`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Running the demo
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. Go to `/run`
+2. Paste the contents of `examples/sample-brief.yaml` into the brief textarea
+3. Upload packshot/logo assets if prompted (or let the seed handle it)
+4. Click **Run Pipeline →**
+5. Watch the SSE log — artifacts appear in real time
+6. Click **View in Review Workspace →** when done
 
-## Learn More
+## With Gemini
 
-To learn more about Next.js, take a look at the following resources:
+Set `GEMINI_API_KEY` in `.env.local` to enable:
+- Real hero image generation for Hydra Boost Serum
+- Real French copy localization
+- Gemini brand compliance review
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Without the key, the pipeline uses placeholder images and mock translations.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Storage layout
 
-## Deploy on Vercel
+```
+storage/
+  assets/{campaignId}/     ← uploaded/seeded assets
+  outputs/{campaignId}/{productId}/{market}/1x1.png …
+  manifests/{artifactId}.json
+  briefs/{campaignId}.yaml
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Architecture
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- **`src/lib/`** — 10 focused modules, each with one job
+- **`POST /api/pipeline/run`** — SSE pipeline, emits events per step/artifact
+- **`GET /review`** — server component reads manifests; client polls for updates
+- **`PATCH /api/review/[id]`** — persists heart/comment/approve/flag to manifest JSON
+
+## Running tests
+
+```bash
+npm test
+```
