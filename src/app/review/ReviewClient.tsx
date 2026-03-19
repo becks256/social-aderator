@@ -3,8 +3,8 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { ArtifactCard } from '@/components/ArtifactCard'
-import { FilterBar } from '@/components/FilterBar'
+import { ArtifactCard } from '@/components/ArtifactCard/ArtifactCard'
+import { FilterBar } from '@/components/FilterBar/FilterBar'
 import type { ArtifactManifest } from '@/lib/types'
 
 interface Props {
