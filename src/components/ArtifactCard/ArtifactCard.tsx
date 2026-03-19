@@ -132,6 +132,19 @@ export const ArtifactCard = ({ manifest: initial }: Props) => {
           )}
         </div>
         {commenting && <CommentForm onClick={handleCommentSubmit} />}
+
+        {/* Comment list */}
+        {manifest.review.comments.length > 0 && (
+          <div className="mt-2 space-y-1.5">
+            {manifest.review.comments.map((c, i) => (
+              <div key={i} className="text-[10px] bg-gray-50 rounded px-2 py-1.5">
+                <span className="font-medium text-gray-600">{c.author}</span>
+                <span className="text-gray-400 mx-1">·</span>
+                <span className="text-gray-500">{c.text}</span>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
