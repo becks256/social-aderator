@@ -1,12 +1,12 @@
-import sharp from "sharp";
-import OpenAI from "openai";
+import sharp from "sharp"
+import OpenAI from "openai"
 
 export function isMockMode(): boolean {
-  return !process.env.OPENAI_API_KEY;
+  return !process.env.OPENAI_API_KEY
 }
 
 function makeClient(): OpenAI {
-  return new OpenAI({ apiKey: process.env.OPENAI_API_KEY! });
+  return new OpenAI({ apiKey: process.env.OPENAI_API_KEY! })
 }
 
 // Locale-specific visual cues injected into the image generation prompt
@@ -35,13 +35,13 @@ const LOCALE_HINTS: Record<string, string> = {
     "Gulf luxury aesthetic, warm golden tones, opulent yet restrained, desert-inspired palette",
   "in-IN":
     "Vibrant Indian palette, rich jewel tones, joyful and expressive, festive warmth",
-};
+}
 
 function localeHint(market: string): string {
   return (
     LOCALE_HINTS[market] ??
     `${market} cultural aesthetic, locally resonant setting and mood`
-  );
+  )
 }
 
 /**
@@ -61,31 +61,33 @@ export async function generateHeroImage(
       "#4a90d9",
       1080,
       1080,
-    );
+    )
   }
 
-  const ai = makeClient();
+  const ai = makeClient()
   const prompt = [
     `Product hero image for ${brand}'s "${productName}".`,
     `Tagline: "${tagline}".`,
     `Visual style: ${localeHint(market)}.`,
     "Clean studio or lifestyle photography, professional advertising quality.",
+    "Don't attempt to generate the product itself, just a compelling visual metaphor for it.",
+    "Focus on evoking the right mood and associations for the product and market.",
     "No text or logos in the image.",
-  ].join(" ");
+  ].join(" ")
 
   const response = await ai.images.generate({
     model: "gpt-image-1.5",
     prompt,
     n: 1,
     size: "1024x1024",
-  });
+  })
 
-  const b64 = response.data?.[0]?.b64_json;
+  const b64 = response.data?.[0]?.b64_json
   if (!b64) {
-    return generatePlaceholderImage(productName, "#4a90d9", 1080, 1080);
+    return generatePlaceholderImage(productName, "#4a90d9", 1080, 1080)
   }
 
-  return Buffer.from(b64, "base64");
+  return Buffer.from(b64, "base64")
 }
 
 /**
@@ -99,11 +101,11 @@ export async function reviewCompliance(
   headline: string,
 ): Promise<{ passed: boolean; issues: string[] }> {
   if (isMockMode()) {
-    return { passed: true, issues: [] };
+    return { passed: true, issues: [] }
   }
 
-  const ai = makeClient();
-  const prompt = `You are a brand compliance reviewer. Review this ad creative for brand ${brand}, product ${productName}, headline "${headline}". Check: 1) Is the copy appropriate and on-brand? 2) Is there any potentially offensive content?`;
+  const ai = makeClient()
+  const prompt = `You are a brand compliance reviewer. Review this ad creative for brand ${brand}, product ${productName}, headline "${headline}". Check: 1) Is the copy appropriate and on-brand? 2) Is there any potentially offensive content?`
 
   const response = await ai.chat.completions.create({
     model: "gpt-5.4-nano",
@@ -144,15 +146,15 @@ export async function reviewCompliance(
       },
     ],
     tool_choice: { type: "function", function: { name: "submit_review" } },
-  });
+  })
 
   try {
-    const toolCall = response.choices[0]?.message.tool_calls?.[0];
+    const toolCall = response.choices[0]?.message.tool_calls?.[0]
     const args =
-      toolCall && "function" in toolCall ? toolCall.function.arguments : "";
-    return JSON.parse(args);
+      toolCall && "function" in toolCall ? toolCall.function.arguments : ""
+    return JSON.parse(args)
   } catch {
-    return { passed: true, issues: [] };
+    return { passed: true, issues: [] }
   }
 }
 
@@ -167,6 +169,6 @@ export async function generatePlaceholderImage(
     <rect width="${width}" height="${height}" fill="none" stroke="${color}" stroke-width="4"/>
     <text x="${width / 2}" y="${height / 2}" font-family="sans-serif" font-size="${Math.floor(width / 20)}"
       fill="${color}" text-anchor="middle" dominant-baseline="middle">${label}</text>
-  </svg>`;
-  return sharp(Buffer.from(svg)).png().toBuffer();
+  </svg>`
+  return sharp(Buffer.from(svg)).png().toBuffer()
 }
