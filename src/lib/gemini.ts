@@ -26,7 +26,7 @@ export async function generateHeroImage(
   // Note: image generation requires the preview image-generation model variant;
   // standard gemini-2.5-flash does not support image output modality.
   const response = await ai.models.generateContent({
-    model: 'gemini-2.0-flash-preview-image-generation',
+    model: 'gemini-2.5-flash-image',
     contents: prompt,
     config: { responseModalities: ['image'] },
   })
